@@ -13,20 +13,22 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 
 contract FundMe{
     mapping (address =>uint256) public funderToAmount;//键值对
-    uint256 constant  MINI_VALUE = 100 * 10 ** 18;//USD
+    uint256 constant  MINI_VALUE = 100 * 10 ** 18;//100USD
     uint256 constant TARGET = 200 * 10 ** 18;//目标
     address public owner;
     uint256 deploymentTimestamp;
     uint256 lockTime;
     address erc20Addr;
     bool public getFundSuccess;
+    event FundWithdrawByOwner(uint256);
+    event ReturnedToAccount(address,uint256);
     
-    AggregatorV3Interface internal dataFeed;
+    AggregatorV3Interface public dataFeed;
     
-    constructor(uint256 _locktime) payable {//构造函数
+    constructor(uint256 _locktime,address dataFeedAddr) payable {//构造函数
         deploymentTimestamp = block.timestamp;
 
-        dataFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
+        dataFeed = AggregatorV3Interface(dataFeedAddr);
         owner = msg.sender;
         lockTime = _locktime;
     }
@@ -74,11 +76,12 @@ contract FundMe{
 
     //call  中间穿插函数/数据（都可以处理 建议）
     bool success;
-    (success, ) = payable(msg.sender).call{value: address(this).balance}("");
+    uint256 balance = address(this).balance;
+    (success, ) = payable(msg.sender).call{value: balance}("");
     require(success, "tranafer tx failed");
     funderToAmount[msg.sender] = 0;
-    getFundSuccess = true;//f
-
+    getFundSuccess = true;//
+    emit FundWithdrawByOwner(balance);
 
     }
     function transferOwnership(address newOwner) public isOwner{
@@ -87,7 +90,8 @@ contract FundMe{
         
     }
     function refund() external windowClosed{
-        require(convertEthtoUsd(address(this).balance) < TARGET,"TARGET IS REACHED");
+        uint256 balance = address(this).balance;
+        require(convertEthtoUsd(balance) < TARGET,"TARGET IS REACHED");
         uint256 amount =funderToAmount[msg.sender];
         require(amount != 0,"there is not fund for you");
         
@@ -95,7 +99,7 @@ contract FundMe{
         (success, ) = payable(msg.sender).call{value: amount}("");
         require(success, "tranafer tx failed");
         amount = 0;
-        
+        emit ReturnedToAccount(msg.sender,balance);
 
     }
     //修改函数，方便其他合约从外部更改数量

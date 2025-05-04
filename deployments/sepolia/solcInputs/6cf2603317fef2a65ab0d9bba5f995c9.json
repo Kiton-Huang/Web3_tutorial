@@ -1,0 +1,39 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\n// solhint-disable-next-line interface-starts-with-i\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  function getRoundData(\n    uint80 _roundId\n  ) external view returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n\n  function latestRoundData()\n    external\n    view\n    returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound);\n}\n"
+    },
+    "contracts/FundMe.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.4;\n//收款函数\nimport {AggregatorV3Interface} from \"@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol\";\n\n//这是一个模拟产品上线前的预售系统\n\n//创建一个收款函数\n//记录投资人并查看\n//在锁定期，达到目标值，生产商提款\n//在锁定期，没达到目标值，投资人可以退款\n\n\ncontract FundMe{\n    mapping (address =>uint256) public funderToAmount;//键值对\n    uint256 constant  MINI_VALUE = 100 * 10 ** 18;//USD\n    uint256 constant TARGET = 200 * 10 ** 18;//目标\n    address public owner;\n    uint256 deploymentTimestamp;\n    uint256 lockTime;\n    address erc20Addr;\n    bool public getFundSuccess;\n    \n    AggregatorV3Interface public dataFeed;\n    \n    constructor(uint256 _locktime,address dataFeedAddr) payable {//构造函数\n        deploymentTimestamp = block.timestamp;\n\n        dataFeed = AggregatorV3Interface(dataFeedAddr);\n        owner = msg.sender;\n        lockTime = _locktime;\n    }\n    \n    function fund() external payable {//支出资产\n        require(convertEthtoUsd(msg.value) >= MINI_VALUE, \"You need to send more eth\");\n        require(block.timestamp < deploymentTimestamp + lockTime ,\"window is closed\");//时间限制\n        funderToAmount[msg.sender] = msg.value;//查看\n    }\n\n\n    function getChainlinkDataFeedLatestAnswer() public view returns (int) {//喂价\n        // prettier-ignore\n        (\n            /* uint80 roundID */,\n            int answer,//价格\n            /*uint startedAt*/,\n            /*uint timeStamp*/,\n            /*uint80 answeredInRound*/\n        ) = dataFeed.latestRoundData();\n        return answer;\n    }\n    function convertEthtoUsd(uint256 ethAmount) internal view  returns (uint256) {\n        uint256 ethPrice = uint256(getChainlinkDataFeedLatestAnswer());\n        return ethAmount * ethPrice / (10**8);\n    }\n\n\n    function getFund() external windowClosed isOwner{\n    //获取资产\n    // Msg.sender 是约定调用方的地址。 address(this) 是智能合约本身的地址\n   \n    require(convertEthtoUsd(address(this).balance) >= TARGET,\"TARGET IS NOT REACHED\"); \n    \n    \n\n    //下方为常见的转钱方式\n\n    //transfer  纯转账 失败返回eth\n    // payable (msg.sender).transfer(address(this).balance);\n\n    //send  纯转账 \n    // bool success = payable(msg.sender).send(address(this).balance);\n    // require(success,\"tx failed\");\n\n    //call  中间穿插函数/数据（都可以处理 建议）\n    bool success;\n    (success, ) = payable(msg.sender).call{value: address(this).balance}(\"\");\n    require(success, \"tranafer tx failed\");\n    funderToAmount[msg.sender] = 0;\n    getFundSuccess = true;//f\n\n\n    }\n    function transferOwnership(address newOwner) public isOwner{\n        \n        owner = newOwner;\n        \n    }\n    function refund() external windowClosed{\n        require(convertEthtoUsd(address(this).balance) < TARGET,\"TARGET IS REACHED\");\n        uint256 amount =funderToAmount[msg.sender];\n        require(amount != 0,\"there is not fund for you\");\n        \n        bool success;\n        (success, ) = payable(msg.sender).call{value: amount}(\"\");\n        require(success, \"tranafer tx failed\");\n        amount = 0;\n        \n\n    }\n    //修改函数，方便其他合约从外部更改数量\n    function setFunderToAmount(address funder,uint amountToUpdate) external {\n        require(msg.sender == erc20Addr,\"you do not have permission to call this function\");\n        funderToAmount[funder] = amountToUpdate;\n\n    }\n    function setErc20Addr(address _erc20Addr) public isOwner{\n        erc20Addr = _erc20Addr;\n    }\n\n    //require出现太多次，希望减少冗余，使用修改器\n    //修改器\n    modifier windowClosed (){\n        // _;先执行原来的程序\n        require(block.timestamp >= deploymentTimestamp + lockTime ,\"window is not closed\");//时间限制\n        _;//先执行上面\n    }\n    modifier isOwner() {\n        require(msg.sender == owner, \"You are not owner\");\n        _;\n    }\n}"
+    }
+  },
+  "settings": {
+    "evmVersion": "paris",
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

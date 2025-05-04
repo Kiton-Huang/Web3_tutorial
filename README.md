@@ -10,4 +10,7 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat ignition deploy ./ignition/modules/Lock.js
+
+下面是一些你可能用到的命令：
+npx hardhat deploy --network sepolia --reset //重新部署合约
 ```

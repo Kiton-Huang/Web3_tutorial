@@ -1,11 +1,13 @@
 const{task} = require("hardhat/config");
+const {networkConfig,LOCK_TIME} = require("../helper-hadhat-config");
 task("deploy-fundme", "部署合约并验证").setAction(async(taskArgs,hre) => {
+  const dataFeedAddr =await networkConfig[network.config.chainId].ethUsdDataFeed
     //部署合约
         //先创建一个合约工厂
         const fundMeFactory =await ethers.getContractFactory("FundMe");//创建了一个FundMe的合约工厂
         console.log("合约正在部署...");
         //通过合约工厂部署合约
-        const fundMe =await fundMeFactory.deploy(300);//只发送deploy请求不代表成功
+        const fundMe =await fundMeFactory.deploy(LOCK_TIME,dataFeedAddr);//只发送deploy请求不代表成功
     
     
         //以下是V5版本，已不适配
@@ -24,7 +26,7 @@ task("deploy-fundme", "部署合约并验证").setAction(async(taskArgs,hre) => 
        const deployedAddress = await fundMe.getAddress();
        console.log("合约部署完成:", deployedAddress);
     
-       if(hre.network.config.chainID == 11155111 && process.env.ETHERSCAN_API_KEY){
+       if(hre.network.config.chainId == 11155111 && process.env.ETHERSCAN_API_KEY){
        // 等待区块确认（新方式v6）
        console.log("等待五个区块确认...")
        const deploymentReceipt = await fundMe.deploymentTransaction()?.wait(5);
