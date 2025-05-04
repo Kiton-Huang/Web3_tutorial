@@ -1,5 +1,5 @@
 {
-  "name": "lesson-4",
+  "name": "web3_tutorial",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -19,6 +19,6 @@
     "hardhat": "^2.22.2",
     "hardhat-deploy": "^0.12.4",
     "hardhat-deploy-ethers": "^0.4.2",
-    "hardhat-gas-reporter": "^2.2.3"
+    "hardhat-gas-reporter": "^1.0.10"
   }
 }

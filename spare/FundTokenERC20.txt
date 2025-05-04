@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+//相当于自己的货币兑换系统
+//让fundme的参与者,基于mapping来领取相应数量的代币
+//让参与者。transfer代币
+//使用完成后。需要burn代币
+
+
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {FundMe} from "./FundMe.sol";
+
+contract FundTokenERC20 is ERC20 {
+    FundMe fundme;
+    constructor(address fundmeaddress) ERC20("MyToken", "M1T") {
+        fundme = FundMe(fundmeaddress);
+
+    }
+    function mint(uint256 amountToMint) public {
+        
+         require(fundme.funderToAmount(msg.sender) >= amountToMint, "you cannot mint this many tokens");
+        require(fundme.getFundSuccess(),"The fundme is not completed yet");//getter函数，别的合约调用，要加空格public会转换为一个getter函数
+        _mint(msg.sender,amountToMint);
+        fundme.setFunderToAmount(msg.sender, fundme.funderToAmount(msg.sender) - amountToMint);
+    }
+    function claim(uint256 amountToClaim) public {
+        //完成兑换
+        //消除数量
+        require(balanceOf(msg.sender) >= amountToClaim,"you dont have enough erc20 tokens");
+        require(fundme.getFundSuccess(),"The fundme is not completed yet");
+        /*add*/
+        _burn(msg.sender, amountToClaim);
+    }
+}
