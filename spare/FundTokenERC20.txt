@@ -1,3 +1,4 @@
+在文件使用时将后缀改为sol并删除此行，注意FundMe的文件位置
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 //相当于自己的货币兑换系统
@@ -7,7 +8,7 @@ pragma solidity ^0.8.4;
 
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import {FundMe} from "./FundMe.sol";
+import {FundMe} from "./FundMe.sol";//注意此处的文件位置
 
 contract FundTokenERC20 is ERC20 {
     FundMe fundme;
