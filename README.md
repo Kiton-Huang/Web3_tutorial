@@ -104,7 +104,7 @@ npx hardhat test --network hardhat
 
 下面是检测代码测试度，hardhat自带
 ```shell
-npx hardhat  coverage
+npx hardhat coverage
 ```
 
 ### helper-hardhat-config.js用于存储变量
