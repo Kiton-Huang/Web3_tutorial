@@ -4,7 +4,7 @@
 // module.exports.default = DeployFunciton
 
 const { network } = require("hardhat");
-const { developmentChains,networkConfig,LOCK_TIME,CONFIRMATIONS } = require("../helper-hadhat-config");
+const { developmentChains,networkConfig,LOCK_TIME,CONFIRMATIONS } = require("../helper-hardhat-config");
 
 
 //简写如下

@@ -14,7 +14,7 @@
 
 
 const {ethers} = require("hardhat");
-const {networkConfig,LOCK_TIME} = require("../helper-hadhat-config");
+const {networkConfig,LOCK_TIME} = require("../helper-hardhat-config");
 // 延迟函数
 // function delay(ms) {
 //     return new Promise(resolve => setTimeout(resolve, ms));

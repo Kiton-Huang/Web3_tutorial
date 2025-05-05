@@ -1,5 +1,5 @@
 const{task} = require("hardhat/config");
-const {networkConfig,LOCK_TIME} = require("../helper-hadhat-config");
+const {networkConfig,LOCK_TIME} = require("../helper-hardhat-config");
 task("deploy-fundme", "部署合约并验证").setAction(async(taskArgs,hre) => {
   const dataFeedAddr =await networkConfig[network.config.chainId].ethUsdDataFeed
     //部署合约

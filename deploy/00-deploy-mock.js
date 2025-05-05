@@ -1,4 +1,4 @@
-const {developmentChains,DECIMAL,INITIAL_ANSWER} = require("../helper-hadhat-config");
+const {developmentChains,DECIMAL,INITIAL_ANSWER} = require("../helper-hardhat-config");
 
 module.exports = async({getNamedAccounts,deployments}) =>{
     if(developmentChains.includes(network.name)){

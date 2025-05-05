@@ -1,7 +1,7 @@
 const { ethers, deployments, getNamedAccounts } = require("hardhat");
 const { assert, expect} = require("chai");
 const helpers = require("@nomicfoundation/hardhat-network-helpers");
-const developmentChains = require("../../helper-hadhat-config").developmentChains;
+const developmentChains = require("../../helper-hardhat-config").developmentChains;
 
 //mock合约中
 //1eth = 2500usd
